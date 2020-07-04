@@ -79,7 +79,6 @@ impl StockHashTable {
                 } else {
                     hasher.write(data);
                 }
-                hasher.write(data);
                 let hash: u32 = hasher.finish() as u32;
                 !self.table[file_name.as_ref()].contains(&hash)
             }
