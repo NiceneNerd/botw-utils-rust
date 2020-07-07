@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 use std::hash::Hasher;
 use std::io::Cursor;
-use twox_hash::XxHash32;
+use twox_hash::XxHash64;
 
 static HASHES_U: &'static str = include_str!("../data/wiiu_hashes.json");
 static HASHES_NX: &'static str = include_str!("../data/switch_hashes.json");
-type HashTable = HashMap<&'static str, Vec<u32>>;
+type HashTable = HashMap<&'static str, Vec<u64>>;
 
 /// Platform enum for Wii U or Switch copy of BOTW
 #[derive(Debug, Eq, PartialEq)]
@@ -68,7 +68,7 @@ impl StockHashTable {
         match self.table.contains_key(file_name.as_ref()) {
             true => {
                 let data = data.as_ref();
-                let mut hasher = XxHash32::with_seed(0);
+                let mut hasher = XxHash64::with_seed(0);
                 if &data[0..4] == b"Yaz0" {
                     hasher.write(
                         &yaz0::Yaz0Archive::new(Cursor::new(data))
@@ -79,7 +79,7 @@ impl StockHashTable {
                 } else {
                     hasher.write(data);
                 }
-                let hash: u32 = hasher.finish() as u32;
+                let hash: u64 = hasher.finish();
                 !self.table[file_name.as_ref()].contains(&hash)
             }
             false => flag_new,
@@ -112,7 +112,7 @@ mod tests {
             table
                 .get("Actor/ModelList/DgnMrgPrt_Dungeon023.bmodellist")
                 .unwrap(),
-            &vec![2304172004u32, 1028910535u32]
+            &vec![3305211212481695363u64, 6042644272755124234u64]
         )
     }
 
