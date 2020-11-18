@@ -34,8 +34,7 @@ pub fn get_canon_name<P: AsRef<Path>>(file_path: P) -> Option<String> {
     }
     let mut normalized = file_path
         .as_ref()
-        .to_str()
-        .unwrap()
+        .to_string_lossy()
         .replace("\\", "/")
         .replace(".s", ".");
     normalized = RE
@@ -83,8 +82,7 @@ pub fn get_canon_name<P: AsRef<Path>>(file_path: P) -> Option<String> {
 pub fn get_canon_name_without_root<P: AsRef<Path>>(file_path: P) -> String {
     file_path
         .as_ref()
-        .to_str()
-        .unwrap()
+        .to_string_lossy()
         .replace("\\", "/")
         .replace(".s", ".")
 }
