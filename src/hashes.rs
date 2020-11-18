@@ -3,8 +3,8 @@ use std::hash::Hasher;
 use std::io::Cursor;
 use twox_hash::XxHash64;
 
-static HASHES_U: &'static str = include_str!("../data/wiiu_hashes.json");
-static HASHES_NX: &'static str = include_str!("../data/switch_hashes.json");
+static HASHES_U: &str = include_str!("../data/wiiu_hashes.json");
+static HASHES_NX: &str = include_str!("../data/switch_hashes.json");
 type HashTable = HashMap<&'static str, Vec<u64>>;
 
 /// Platform enum for Wii U or Switch copy of BOTW
@@ -49,7 +49,7 @@ impl StockHashTable {
 
     /// Gets an owend list of the canonical resource paths for all files in the stock hash table.
     pub fn list_stock_files(&self) -> Vec<String> {
-        self.table.keys().map(|x| x.to_string()).collect()
+        self.table.keys().map(|x| x.to_owned().to_owned()).collect()
     }
 
     /// Checks a file to see if it has been modified. Automatically decompresses yaz0 data.
@@ -65,24 +65,23 @@ impl StockHashTable {
         data: D,
         flag_new: bool,
     ) -> bool {
-        match self.table.contains_key(file_name.as_ref()) {
-            true => {
-                let data = data.as_ref();
-                let mut hasher = XxHash64::with_seed(0);
-                if &data[0..4] == b"Yaz0" {
-                    hasher.write(
-                        &yaz0::Yaz0Archive::new(Cursor::new(data))
-                            .unwrap()
-                            .decompress()
-                            .unwrap(),
-                    );
-                } else {
-                    hasher.write(data);
-                }
-                let hash: u64 = hasher.finish();
-                !self.table[file_name.as_ref()].contains(&hash)
+        if self.table.contains_key(file_name.as_ref()) {
+            let data = data.as_ref();
+            let mut hasher = XxHash64::with_seed(0);
+            if &data[0..4] == b"Yaz0" {
+                hasher.write(
+                    &yaz0::Yaz0Archive::new(Cursor::new(data))
+                        .unwrap()
+                        .decompress()
+                        .unwrap(),
+                );
+            } else {
+                hasher.write(data);
             }
-            false => flag_new,
+            let hash: u64 = hasher.finish();
+            !self.table[file_name.as_ref()].contains(&hash)
+        } else {
+            flag_new
         }
     }
 
@@ -112,7 +111,7 @@ mod tests {
             table
                 .get("Actor/ModelList/DgnMrgPrt_Dungeon023.bmodellist")
                 .unwrap(),
-            &vec![3305211212481695363u64, 6042644272755124234u64]
+            &vec![3_305_211_212_481_695_363_u64, 6_042_644_272_755_124_234_u64]
         )
     }
 
