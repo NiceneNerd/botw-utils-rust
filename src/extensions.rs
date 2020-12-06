@@ -23,7 +23,7 @@ pub const SARC_EXTS: [&str; 18] = [
 ];
 
 /// List of known file extensions in BOTW for AAMP files
-pub const AAMP_EXTS: [&str; 122] = [
+pub const AAMP_EXTS: [&str; 124] = [
     "bxml",
     "sbxml",
     "bas",
@@ -146,6 +146,8 @@ pub const AAMP_EXTS: [&str; 122] = [
     "sbvege",
     "bactcapt",
     "sbactcapt",
+    "bwinfo",
+    "sbwinfo",
 ];
 
 /// List of known file extensions in BOTW for BYML files
