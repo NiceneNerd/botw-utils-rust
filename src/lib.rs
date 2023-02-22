@@ -1,4 +1,4 @@
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::Path;
 
@@ -25,17 +25,17 @@ pub mod hashes;
 /// Returns an Option with the canonical resource path as a String or None if the path does not
 /// appear valid
 pub fn get_canon_name<P: AsRef<Path>>(file_path: P) -> Option<String> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(
+    static RE: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(
             "(?i)(((Content|(atmosphere/(titles|contents)/)?01007EF00011E000/romfs)/)|\
-            ((Aoc(/0010)?|(atmosphere/(titles|contents)/)?01007EF00011[ef]00[0-2]/romfs)/))"
+        ((Aoc(/0010)?|(atmosphere/(titles|contents)/)?01007EF00011[ef]00[0-2]/romfs)/))",
         )
-        .unwrap();
-    }
+        .unwrap()
+    });
     let mut normalized = file_path
         .as_ref()
         .to_string_lossy()
-        .replace("\\", "/")
+        .replace('\\', "/")
         .replace(".s", ".");
     normalized = RE
         .replace_all(&normalized, |caps: &regex::Captures| {
@@ -83,7 +83,7 @@ pub fn get_canon_name_without_root<P: AsRef<Path>>(file_path: P) -> String {
     file_path
         .as_ref()
         .to_string_lossy()
-        .replace("\\", "/")
+        .replace('\\', "/")
         .replace(".s", ".")
 }
 

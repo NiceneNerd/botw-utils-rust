@@ -1,7 +1,7 @@
 //! Contains arrays of file extensions used by BOTW for SARC, AAMP, and BYML files
 
 /// List of known file extensions in BOTW for SARC files
-pub const SARC_EXTS: [&str; 18] = [
+pub const SARC_EXTS: &[&str] = &[
     "sarc",
     "pack",
     "bactorpack",
@@ -23,7 +23,7 @@ pub const SARC_EXTS: [&str; 18] = [
 ];
 
 /// List of known file extensions in BOTW for AAMP files
-pub const AAMP_EXTS: [&str; 124] = [
+pub const AAMP_EXTS: &[&str] = &[
     "bxml",
     "sbxml",
     "bas",
@@ -151,7 +151,7 @@ pub const AAMP_EXTS: [&str; 124] = [
 ];
 
 /// List of known file extensions in BOTW for BYML files
-pub const BYML_EXTS: [&str; 14] = [
+pub const BYML_EXTS: &[&str] = &[
     "bgdata",
     "sbgdata",
     "bquestpack",

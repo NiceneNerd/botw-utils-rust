@@ -1,11 +1,12 @@
+use include_flate::flate;
+use roead::yaz0::decompress;
 use std::collections::HashMap;
 use std::hash::Hasher;
-use std::io::Cursor;
 use twox_hash::XxHash64;
 
-static HASHES_U: &str = include_str!("../data/wiiu_hashes.json");
-static HASHES_NX: &str = include_str!("../data/switch_hashes.json");
-type HashTable = HashMap<&'static str, Vec<u64>>;
+flate!(static HASHES_U: str from "data/wiiu_hashes.json");
+flate!(static HASHES_NX: str from "data/switch_hashes.json");
+pub type HashTable = HashMap<&'static str, Vec<u64>>;
 
 /// Platform enum for Wii U or Switch copy of BOTW
 #[derive(Debug, Eq, PartialEq)]
@@ -17,10 +18,11 @@ pub enum Platform {
 /// Gets a hash table of stock BOTW 1.5.0 (for Wii U) or stock 1.6.0 (for Switch) game files and
 /// possible hashes for them. These include, where applicable, the original hash and variants
 /// created by processing unmodified files with common libraries and tools.
+#[inline]
 pub fn get_hash_table(platform: &Platform) -> HashTable {
     match platform {
-        Platform::WiiU => serde_json::from_str(HASHES_U).unwrap(),
-        Platform::Switch => serde_json::from_str(HASHES_NX).unwrap(),
+        Platform::WiiU => serde_json::from_str(HASHES_U.as_ref()).unwrap(),
+        Platform::Switch => serde_json::from_str(HASHES_NX.as_ref()).unwrap(),
     }
 }
 
@@ -36,6 +38,7 @@ impl StockHashTable {
     /// # Arguments
     ///
     /// * `platform` - Specifies whether to use a Wii U 1.5.0 or Switch 1.6.0 hash table
+    #[inline]
     pub fn new(platform: &Platform) -> StockHashTable {
         StockHashTable {
             table: get_hash_table(platform),
@@ -43,11 +46,13 @@ impl StockHashTable {
     }
 
     /// Iterates the files in the stock hash table by their canonical resource paths.
+    #[inline]
     pub fn get_stock_files(&self) -> impl Iterator<Item = &&str> {
         self.table.keys()
     }
 
     /// Gets an owend list of the canonical resource paths for all files in the stock hash table.
+    #[inline]
     pub fn list_stock_files(&self) -> Vec<String> {
         self.table.keys().map(|x| x.to_owned().to_owned()).collect()
     }
@@ -69,12 +74,10 @@ impl StockHashTable {
             let data = data.as_ref();
             let mut hasher = XxHash64::with_seed(0);
             if &data[0..4] == b"Yaz0" {
-                hasher.write(
-                    &yaz0::Yaz0Archive::new(Cursor::new(data))
-                        .unwrap()
-                        .decompress()
-                        .unwrap(),
-                );
+                match decompress(data) {
+                    Ok(data) => hasher.write(&data),
+                    Err(_) => return true,
+                }
             } else {
                 hasher.write(data);
             }
@@ -90,6 +93,7 @@ impl StockHashTable {
     /// # Arguments
     ///
     /// * `file_name` - The canonical resource name of the file to check as a string slice
+    #[inline]
     pub fn is_file_new<S: AsRef<str>>(&self, file_name: S) -> bool {
         !self.table.contains_key(file_name.as_ref())
     }
@@ -118,14 +122,11 @@ mod tests {
     #[test]
     fn is_file_modded() {
         let tbl = StockHashTable::new(&Platform::Switch);
-        assert_eq!(
-            tbl.is_file_modded(
-                "Actor/Physics/FldObj_MountainSheikerWall_A_06.bphysics",
-                b"Random data",
-                true
-            ),
+        assert!(tbl.is_file_modded(
+            "Actor/Physics/FldObj_MountainSheikerWall_A_06.bphysics",
+            b"Random data",
             true
-        )
+        ))
     }
 
     #[test]
