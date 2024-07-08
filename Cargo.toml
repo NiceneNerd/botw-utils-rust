@@ -6,15 +6,18 @@ documentation = "https://docs.rs/botw-utils"
 readme = "README.md"
 keywords = ["Nintendo", "Zelda", "gamedev"]
 categories = ["game-development", "utilities"]
-version = "0.5.0"
+version = "0.5.1"
 authors = ["Caleb Smith <macadamiadaze@gmail.com>"]
 license = "MIT"
 edition = "2018"
 
 [dependencies]
-include-flate = { version = "0.2.0", features = ["stable"] }
-once_cell = "1.17"
-regex = "1.4.2"
-roead = { version = "0.23.0", default-features = false, features = ["yaz0", "binrw"] }
+include-flate = "0.3.0"
+once_cell = "1.19"
+regex = "1.10"
+roead = { version = "0.25.3", default-features = false, features = [
+    "yaz0",
+    "binrw",
+] }
 serde_json = "1"
-twox-hash = "1.6.0"
+twox-hash = "1.6"

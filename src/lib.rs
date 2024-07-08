@@ -74,7 +74,7 @@ pub fn get_canon_name<P: AsRef<Path>>(file_path: P) -> Option<String> {
 /// # Arguments
 ///
 /// * `file_path` - The path of the BOTW game file, not relative to a root folder but bare. In most
-/// cases this would only come from a path inside of a SARC.
+///   cases this would only come from a path inside of a SARC.
 ///
 /// # Returns
 ///
